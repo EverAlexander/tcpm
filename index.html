@@ -317,30 +317,34 @@
         }
       </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 
     <script>
-        const clientId = '199068632078-jqqce2lab71plomvblqlj60p05d7siam.apps.googleusercontent.com'; // Reemplázalo con tu ID de cliente
+    const clientId = '199068632078-jqqce2lab71plomvblqlj60p05d7siam.apps.googleusercontent.com'; // Reemplaza con tu Client ID real
 
-        // Función que se ejecuta cuando el usuario inicia sesión correctamente
-        function handleCredentialResponse(response) {
-            console.log("JWT de Google ID Token:", response.credential);
+    function handleCredentialResponse(response) {
+        console.log("JWT de Google ID Token:", response.credential);
 
-            // Puedes decodificar el token o enviarlo a tu backend para validación
-            // Por ejemplo, usando jwt.io o con una librería JWT en tu backend
-        }
+        // Decodificamos el token para obtener los datos del usuario
+        const user = jwt_decode(response.credential);
+        console.log("Usuario:", user);
 
-        // Asocia el botón al flujo de login de Google
-        document.getElementById("google-login").addEventListener("click", function (e) {
-            e.preventDefault();
+        // Mostramos el saludo
+        alert('Hola, ' + user.name + '!');
+    }
 
-            google.accounts.id.initialize({
-                client_id: clientId,
-                callback: handleCredentialResponse
-            });
+    // Asociamos el botón al evento de login
+    document.getElementById("google-login").addEventListener("click", function (e) {
+        e.preventDefault();
 
-            google.accounts.id.prompt(); // Esto muestra el popup de selección de cuenta
+        google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleCredentialResponse
         });
-    </script>
+
+        google.accounts.id.prompt(); // Muestra el popup para elegir cuenta de Google
+    });
+</script>
 
 </body>
 
