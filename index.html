@@ -269,82 +269,71 @@
 
     <!-- SweetAlert2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <script src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 
+   <!-- BLOQUE ÚNICO DE SCRIPT CON TODA LA LÓGICA -->
     <script>
-        window.fbAsyncInit = function() {
-          FB.init({
-            appId      : '1138872144594794', // Reemplaza {your-app-id} con tu ID de aplicación de Facebook
-            cookie     : true,
-            xfbml      : true,
-            version    : 'v10.0' // Asegúrate de usar la versión más reciente o la que prefieras
-          });
-            
-          FB.AppEvents.logPageView();   
-        };
-      
-        (function(d, s, id){
-           var js, fjs = d.getElementsByTagName(s)[0];
-           if (d.getElementById(id)) {return;}
-           js = d.createElement(s); js.id = id;
-           js.src = "https://connect.facebook.net/en_US/sdk.js";
-           fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-      
-        // Cuando el usuario haga clic en el botón de Facebook
-        document.getElementById('facebook-login').addEventListener('click', function(e) {
-          e.preventDefault(); // Evitar que se siga el enlace
-      
-          // Solicitar el inicio de sesión con Facebook
-          FB.login(function(response) {
-            if (response.status === 'connected') {
-              // El usuario está logueado correctamente
-              console.log('Conexión exitosa. ID de usuario: ' + response.authResponse.userID);
-              obtenerDatosPerfil();
-            } else {
-              // El usuario no ha iniciado sesión correctamente o ha cancelado
-              console.log('El inicio de sesión fue cancelado o fallido.');
-            }
-          }, {scope: 'email'}); // Solicitamos el permiso de email
+      // FACEBOOK SDK INIT
+      window.fbAsyncInit = function () {
+        FB.init({
+          appId: '1138872144594794',
+          cookie: true,
+          xfbml: true,
+          version: 'v10.0'
         });
-      
-        // Obtener los datos del perfil del usuario
-        function obtenerDatosPerfil() {
-          FB.api('/me', {fields: 'id,name,email,picture'}, function(response) {
-            console.log('Perfil de usuario: ', response);
-            // Aquí puedes hacer algo con la respuesta, por ejemplo, mostrar los datos o guardarlos en el servidor
+    
+        FB.AppEvents.logPageView();
+      };
+    
+      // FACEBOOK LOGIN
+      document.addEventListener("DOMContentLoaded", function () {
+        const fbBtn = document.getElementById('facebook-login');
+        if (fbBtn) {
+          fbBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            FB.login(function (response) {
+              if (response.status === 'connected') {
+                obtenerDatosPerfilFacebook();
+              } else {
+                console.log('El inicio de sesión fue cancelado o fallido.');
+              }
+            }, { scope: 'email' });
+          });
+        }
+    
+        function obtenerDatosPerfilFacebook() {
+          FB.api('/me', { fields: 'id,name,email,picture' }, function (response) {
+            console.log('Perfil de usuario (Facebook): ', response);
             alert('Hola, ' + response.name + '!');
           });
         }
-      </script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
-
-    <script>
-    const clientId = '199068632078-jqqce2lab71plomvblqlj60p05d7siam.apps.googleusercontent.com'; // Reemplaza con tu Client ID real
-
-    function handleCredentialResponse(response) {
-        console.log("JWT de Google ID Token:", response.credential);
-
-        // Decodificamos el token para obtener los datos del usuario
-        const user = jwt_decode(response.credential);
-        console.log("Usuario:", user);
-
-        // Mostramos el saludo
-        alert('Hola, ' + user.name + '!');
-    }
-
-    // Asociamos el botón al evento de login
-    document.getElementById("google-login").addEventListener("click", function (e) {
-        e.preventDefault();
-
-        google.accounts.id.initialize({
-            client_id: clientId,
-            callback: handleCredentialResponse
-        });
-
-        google.accounts.id.prompt(); // Muestra el popup para elegir cuenta de Google
-    });
-</script>
+    
+        // GOOGLE LOGIN
+        const googleBtn = document.getElementById('google-login');
+        const googleClientId = '199068632078-jqqce2lab71plomvblqlj60p05d7siam.apps.googleusercontent.com';
+    
+        if (googleBtn) {
+          googleBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+    
+            google.accounts.id.initialize({
+              client_id: googleClientId,
+              callback: function handleCredentialResponse(response) {
+                console.log("JWT de Google ID Token:", response.credential);
+                const user = jwt_decode(response.credential);
+                console.log("Perfil de usuario (Google):", user);
+                alert('Hola, ' + user.name + '!');
+              }
+            });
+    
+            google.accounts.id.prompt();
+          });
+        }
+      });
+    </script>
 
 </body>
 
