@@ -316,6 +316,31 @@
           });
         }
       </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+        const clientId = '199068632078-jqqce2lab71plomvblqlj60p05d7siam.apps.googleusercontent.com'; // Reemplázalo con tu ID de cliente
+
+        // Función que se ejecuta cuando el usuario inicia sesión correctamente
+        function handleCredentialResponse(response) {
+            console.log("JWT de Google ID Token:", response.credential);
+
+            // Puedes decodificar el token o enviarlo a tu backend para validación
+            // Por ejemplo, usando jwt.io o con una librería JWT en tu backend
+        }
+
+        // Asocia el botón al flujo de login de Google
+        document.getElementById("google-login").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            google.accounts.id.initialize({
+                client_id: clientId,
+                callback: handleCredentialResponse
+            });
+
+            google.accounts.id.prompt(); // Esto muestra el popup de selección de cuenta
+        });
+    </script>
 
 </body>
 
