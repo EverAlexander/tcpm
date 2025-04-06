@@ -270,6 +270,52 @@
     <!-- SweetAlert2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
+    <script>
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : '669187905471099', // Reemplaza {your-app-id} con tu ID de aplicación de Facebook
+            cookie     : true,
+            xfbml      : true,
+            version    : 'v10.0' // Asegúrate de usar la versión más reciente o la que prefieras
+          });
+            
+          FB.AppEvents.logPageView();   
+        };
+      
+        (function(d, s, id){
+           var js, fjs = d.getElementsByTagName(s)[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement(s); js.id = id;
+           js.src = "https://connect.facebook.net/en_US/sdk.js";
+           fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+      
+        // Cuando el usuario haga clic en el botón de Facebook
+        document.getElementById('facebook-login').addEventListener('click', function(e) {
+          e.preventDefault(); // Evitar que se siga el enlace
+      
+          // Solicitar el inicio de sesión con Facebook
+          FB.login(function(response) {
+            if (response.status === 'connected') {
+              // El usuario está logueado correctamente
+              console.log('Conexión exitosa. ID de usuario: ' + response.authResponse.userID);
+              obtenerDatosPerfil();
+            } else {
+              // El usuario no ha iniciado sesión correctamente o ha cancelado
+              console.log('El inicio de sesión fue cancelado o fallido.');
+            }
+          }, {scope: 'email'}); // Solicitamos el permiso de email
+        });
+      
+        // Obtener los datos del perfil del usuario
+        function obtenerDatosPerfil() {
+          FB.api('/me', {fields: 'id,name,email,picture'}, function(response) {
+            console.log('Perfil de usuario: ', response);
+            // Aquí puedes hacer algo con la respuesta, por ejemplo, mostrar los datos o guardarlos en el servidor
+            alert('Hola, ' + response.name + '!');
+          });
+        }
+      </script>
 
 </body>
 
