@@ -106,26 +106,36 @@
                             </div>
                         </div>
 
-                        <div class="dropdown">
-                            <!-- Botón principal para el dropdown -->
-                            <a class="nav-link dropdown-toggle btn btn-primary text-white d-flex align-items-center"
-                                href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false">
-                                Iniciar sesión
+                        <!-- Botón para iniciar sesión -->
+                        
+
+                        <!-- Botón de usuario (oculto al principio) -->
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
+                            role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            style="display: none;">
+                            <img id="userPhoto" src="" alt="Iniciar sesión"
+                                style="width: 40px; height: 40px; border-radius: 50%; margin-right: 8px;">
+                            <span id="userName" class="text-dark font-weight-bold"></span>
+                        </a>
+
+                        <!-- Menú desplegable -->
+                        <div class="dropdown-menu dropdown-menu-right" id="dropdownMenu" aria-labelledby="userDropdown">
+                            <!-- Opciones para iniciar sesión (cuando NO ha iniciado sesión) -->
+                            <a href="#" class="dropdown-item" id="facebook-login">
+                                <i class="fab fa-facebook-square mr-2"></i> Iniciar sesión con Facebook
+                            </a>
+                            <a href="#" class="dropdown-item" id="google-login">
+                                <i class="fab fa-google mr-2"></i> Iniciar sesión con Google
                             </a>
 
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                                <!-- Botón de Facebook -->
-                                <a href="#" class="dropdown-item" id="facebook-login">
-                                    <i class="fab fa-facebook-square mr-2"></i> Iniciar sesión con Facebook
-                                </a>
-
-                                <!-- Botón de Google -->
-                                <a href="#" class="dropdown-item" id="google-login">
-                                    <i class="fab fa-google mr-2"></i> Iniciar sesión con Google
+                            <!-- Opciones para usuario logueado (inicialmente ocultas) -->
+                            <div id="loggedInOptions" style="display: none;">
+                                <a href="#" class="dropdown-item" id="logoutBtn">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
                                 </a>
                             </div>
                         </div>
+
 
 
                     </div>
@@ -238,7 +248,7 @@
                             document.write(new Date().getFullYear());
                         </script>
 
-                        
+
                     </div>
                 </div>
             </footer>
@@ -269,71 +279,100 @@
 
     <!-- SweetAlert2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    
+
     <script src="https://connect.facebook.net/en_US/sdk.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 
-   <!-- BLOQUE ÚNICO DE SCRIPT CON TODA LA LÓGICA -->
+    <!-- BLOQUE ÚNICO DE SCRIPT CON TODA LA LÓGICA -->
     <script>
-      // FACEBOOK SDK INIT
-      window.fbAsyncInit = function () {
-        FB.init({
-          appId: '1138872144594794',
-          cookie: true,
-          xfbml: true,
-          version: 'v10.0'
-        });
-    
-        FB.AppEvents.logPageView();
-      };
-    
-      // FACEBOOK LOGIN
-      document.addEventListener("DOMContentLoaded", function () {
-        const fbBtn = document.getElementById('facebook-login');
-        if (fbBtn) {
-          fbBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            FB.login(function (response) {
-              if (response.status === 'connected') {
-                obtenerDatosPerfilFacebook();
-              } else {
-                console.log('El inicio de sesión fue cancelado o fallido.');
-              }
-            }, { scope: 'email' });
-          });
+        function mostrarUsuario(nombre, fotoURL) {
+          document.getElementById('loginDropdown').style.display = 'none'; // Ocultar botón "Iniciar sesión"
+          document.getElementById('userDropdown').style.display = 'flex';   // Mostrar info de usuario
+          document.getElementById('userName').textContent = nombre;
+          document.getElementById('userPhoto').src = fotoURL;
+      
+          // Mostrar solo las opciones de usuario logueado
+          document.getElementById('facebook-login').style.display = 'none';
+          document.getElementById('google-login').style.display = 'none';
+          document.getElementById('loggedInOptions').style.display = 'block';
         }
-    
-        function obtenerDatosPerfilFacebook() {
-          FB.api('/me', { fields: 'id,name,email,picture' }, function (response) {
-            console.log('Perfil de usuario (Facebook): ', response);
-            alert('Hola, ' + response.name + '!');
-          });
+      
+        function cerrarSesion() {
+          document.getElementById('loginDropdown').style.display = 'flex'; // Volver a mostrar botón "Iniciar sesión"
+          document.getElementById('userDropdown').style.display = 'none';  // Ocultar usuario
+          document.getElementById('facebook-login').style.display = 'block';
+          document.getElementById('google-login').style.display = 'block';
+          document.getElementById('loggedInOptions').style.display = 'none';
+          
         }
-    
-        // GOOGLE LOGIN
-        const googleBtn = document.getElementById('google-login');
-        const googleClientId = '199068632078-jqqce2lab71plomvblqlj60p05d7siam.apps.googleusercontent.com';
-    
-        if (googleBtn) {
-          googleBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-    
-            google.accounts.id.initialize({
-              client_id: googleClientId,
-              callback: function handleCredentialResponse(response) {
-                console.log("JWT de Google ID Token:", response.credential);
-                const user = jwt_decode(response.credential);
-                console.log("Perfil de usuario (Google):", user);
-                alert('Hola, ' + user.name + '!');
-              }
+      
+        window.fbAsyncInit = function () {
+          FB.init({
+            appId: '1138872144594794',
+            cookie: true,
+            xfbml: true,
+            version: 'v10.0'
+          });
+      
+          FB.AppEvents.logPageView();
+        };
+      
+        document.addEventListener("DOMContentLoaded", function () {
+          const fbBtn = document.getElementById('facebook-login');
+          const googleBtn = document.getElementById('google-login');
+          const logoutBtn = document.getElementById('logoutBtn');
+      
+          // Cerrar sesión
+          logoutBtn.addEventListener('click', function() {
+            cerrarSesion();
+          });
+      
+          // FACEBOOK LOGIN
+          if (fbBtn) {
+            fbBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              FB.login(function (response) {
+                if (response.status === 'connected') {
+                  obtenerDatosPerfilFacebook();
+                } else {
+                  console.log('El inicio de sesión fue cancelado o fallido.');
+                }
+              }, { scope: 'email' });
             });
-    
-            google.accounts.id.prompt();
-          });
-        }
-      });
-    </script>
+          }
+      
+          function obtenerDatosPerfilFacebook() {
+            FB.api('/me', { fields: 'id,name,email,picture' }, function (response) {
+              console.log('Perfil de usuario (Facebook): ', response);
+              mostrarUsuario(response.name, response.picture.data.url);
+            });
+          }
+      
+          // GOOGLE LOGIN
+          const googleClientId = '199068632078-jqqce2lab71plomvblqlj60p05d7siam.apps.googleusercontent.com';
+      
+          if (googleBtn) {
+            googleBtn.addEventListener("click", function (e) {
+              e.preventDefault();
+      
+              google.accounts.id.initialize({
+                client_id: googleClientId,
+                callback: function handleCredentialResponse(response) {
+                  console.log("JWT de Google ID Token:", response.credential);
+                  const user = jwt_decode(response.credential);
+                  console.log("Perfil de usuario (Google):", user);
+                  mostrarUsuario(user.name, user.picture);
+                }
+              });
+      
+              google.accounts.id.prompt();
+            });
+          }
+        });
+      </script>
+      
+
 
 </body>
 
